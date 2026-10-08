@@ -1,6 +1,6 @@
 name: Automatisation des tests DevSecOps
 
-on: 
+on:
   push:
     branches: [ master, main ]
   pull_request:
