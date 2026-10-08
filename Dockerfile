@@ -14,6 +14,7 @@ RUN apt-get update && \
 
 RUN useradd -m appuser
 
+# Dépendances installées en root, avant le code (meilleur cache)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
