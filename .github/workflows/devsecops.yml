@@ -1,23 +1,49 @@
 name: Automatisation des tests DevSecOps
-on: push
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
 jobs:
   Dependances:
     runs-on: ubuntu-latest
     steps:
-      - name: Dependances
-        run: |
-          echo "ecrire ici le scrypt de contrôle des dépendances"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scan on requirements.txt
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'requirements.txt'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+
   Dockerfile:
     runs-on: ubuntu-latest
     needs: Dependances
     steps:
-      - name: Test Dockerfile
-        run: |
-          echo "ecrire ici le scrypt de contrôle du Dockerfile"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t breakableflask:test .
+
+      - name: Run Trivy vulnerability scan on Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'breakableflask:test'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'
+
   Deploy:
     runs-on: ubuntu-latest
     needs: Dockerfile
     steps:
       - name: Deploy
         run: |
-          echo "Rien à faire ici. Votre application est prête à être déployée"
+          echo "✅ Rien à faire ici. Votre application est prête à être déployée"
